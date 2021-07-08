@@ -5,7 +5,8 @@ output:
     keep_md: true
 ---
 
-Global options
+Global options applied
+
 
 ```r
 knitr::opts_chunk$set(fig.path='Figs/')
@@ -197,7 +198,7 @@ total daily number of
 hist(imp_activity_Tsteps$steps,
      main = "Imputed Number of Steps Per Day",
      xlab = "Number of Steps",
-     col =  "blue")
+     col =  "orange")
 ```
 
 ![](Figs/unnamed-chunk-11-1.png)<!-- -->
