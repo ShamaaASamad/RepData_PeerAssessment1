@@ -6,7 +6,8 @@ output:
 ---
 
 Global options
-```{r global_options}
+
+```r
 knitr::opts_chunk$set(fig.path='Figs/')
 ```
 
@@ -15,13 +16,24 @@ knitr::opts_chunk$set(fig.path='Figs/')
 
 ##  Loading and preprocessing the data
 
-```{r}
+
+```r
 if (!file.exists('activity.csv')) {
   unzip(zipfile = "activity.zip")
 }
 
 activity_data <- read.csv(file="activity.csv", header=TRUE)
 head(activity_data)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
 ```
 
 
@@ -31,19 +43,27 @@ head(activity_data)
 
 ###  What is the total number of steps taken per day?
 
-```{r}
+
+```r
 total_steps <- aggregate(steps ~ date, activity_data, FUN=sum)
 sum(total_steps$steps)
 ```
 
+```
+## [1] 570608
+```
+
 ### Histogram of total number of steps taken per day
 
-```{r}
+
+```r
 hist(total_steps$steps,
      main = "Total Steps per Day",
      xlab = "Number of Steps",
      col  = "pink")
 ```
+
+![](Figs/unnamed-chunk-3-1.png)<!-- -->
 
 
 
@@ -52,15 +72,28 @@ hist(total_steps$steps,
 
 ###  What is the Mean and median number of steps taken each day?
 
-```{r}
+
+```r
 mean(total_steps$steps, na.rm = TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(total_steps$steps, na.rm = TRUE)
+```
+
+```
+## [1] 10765
 ```
 
 
 ### Time series plot of the average number of steps taken
 
-```{r}
+
+```r
 library(ggplot2)
 
 mean_steps_by_interval <- aggregate(steps ~ interval, activity_data, mean)
@@ -74,12 +107,20 @@ ggplot(data = mean_steps_by_interval, aes(x = interval, y = steps)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+![](Figs/unnamed-chunk-5-1.png)<!-- -->
+
 
 ### Which 5-minute interval that, on average, contains the maximum number of steps?
 
-```{r}
+
+```r
 max_steps_Int <- mean_steps_by_interval[which.max(mean_steps_by_interval$steps),]
 max_steps_Int
+```
+
+```
+##     interval    steps
+## 104      835 206.1698
 ```
 
 
@@ -89,14 +130,20 @@ max_steps_Int
 
 ### Calculate and report the total number of missing values in the dataset
 
-```{r}
+
+```r
 sum(is.na(activity_data))
+```
+
+```
+## [1] 2304
 ```
 
 
 ### Filling in the missing values 
 
-```{r}
+
+```r
 imp_activity_data <- transform(activity_data,
       steps = ifelse(is.na(activity_data$steps),
       mean_steps_by_interval$steps[match(activity_data$interval,       mean_steps_by_interval$interval)],activity_data$steps))
@@ -105,18 +152,35 @@ imp_activity_data <- transform(activity_data,
 
 ### Total number of steps taken each day after missing values are imputed
 
-```{r}
+
+```r
 imp_activity_Tsteps <- aggregate(steps ~ date, imp_activity_data, FUN=sum)
 sum(imp_activity_data$steps)
+```
+
+```
+## [1] 656737.5
 ```
 
 
 
 ### Mean and Median number of steps after imputing NA's
 
-```{r}
+
+```r
 mean(imp_activity_Tsteps$steps, na.rm = TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(imp_activity_Tsteps$steps, na.rm = TRUE)
+```
+
+```
+## [1] 10766.19
 ```
 
 
@@ -128,12 +192,15 @@ total daily number of
 
 ### Histogram of the total number of steps taken each day after missing values are imputed
 
-```{r}
+
+```r
 hist(imp_activity_Tsteps$steps,
      main = "Imputed Number of Steps Per Day",
      xlab = "Number of Steps",
      col =  "blue")
 ```
+
+![](Figs/unnamed-chunk-11-1.png)<!-- -->
 
 
 
@@ -142,7 +209,8 @@ hist(imp_activity_Tsteps$steps,
 
 ### Create a new factor variable in the dataset with two levels,  "weekend" and "weekday"
 
-```{r}
+
+```r
 DayType <- function(date) {
   day <- weekdays(date)
   
@@ -159,20 +227,21 @@ DayType <- function(date) {
 imp_activity_data$date <- as.Date(imp_activity_data$date)
 
 imp_activity_data$day <- sapply(imp_activity_data$date, FUN = DayType)
-
 ```
 
 
 ### Average number of steps taken across all weekdays or weekends
 
-```{r}
+
+```r
 mean_steps_by_day <- aggregate(steps ~ interval + day, imp_activity_data, mean)
 ```
 
 
 ### Make a panel plot containnig a time-series plot of the 5-minute interval and the average number of steps taken across all weekdays or weekends
 
-```{r}
+
+```r
 ggplot(data = mean_steps_by_day, aes(x = interval, y = steps)) + 
   geom_line() +
   facet_grid(day ~ .) +
@@ -184,3 +253,5 @@ ggplot(data = mean_steps_by_day, aes(x = interval, y = steps)) +
   
   geom_area(colour="black", fill="blue", alpha=.2)
 ```
+
+![](Figs/unnamed-chunk-14-1.png)<!-- -->
